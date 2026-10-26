@@ -1,0 +1,33 @@
+{
+  "name": "布迹",
+  "appid": "",
+  "description": "记录每一寸喜欢的布",
+  "versionName": "0.1.0",
+  "versionCode": "10",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "compilerVersion": 3,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    }
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": true
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "title": "布迹 · 我的布料手帐"
+  },
+  "uniStatistics": {
+    "enable": false
+  },
+  "vueVersion": "3"
+}
+

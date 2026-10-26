@@ -1,0 +1,44 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/index",
+      "style": { "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/fabrics/index",
+      "style": { "navigationBarTitleText": "我的布料" }
+    },
+    {
+      "path": "pages/match/index",
+      "style": { "navigationBarTitleText": "搭配工坊" }
+    },
+    {
+      "path": "pages/check/index",
+      "style": { "navigationBarTitleText": "买前查重" }
+    },
+    {
+      "path": "pages/projects/index",
+      "style": { "navigationBarTitleText": "作品集" }
+    }
+  ],
+  "tabBar": {
+    "color": "#999e95",
+    "selectedColor": "#506449",
+    "backgroundColor": "#fffefc",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "首页" },
+      { "pagePath": "pages/fabrics/index", "text": "布料" },
+      { "pagePath": "pages/match/index", "text": "搭配" },
+      { "pagePath": "pages/check/index", "text": "查重" },
+      { "pagePath": "pages/projects/index", "text": "作品" }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "布迹",
+    "navigationBarBackgroundColor": "#f6f5f0",
+    "backgroundColor": "#f6f5f0"
+  }
+}
+
