@@ -1,0 +1,37 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "uniapp": {
+      "root": "apps/uniapp",
+      "framework": "vite",
+      "installCommand": "npm ci",
+      "buildCommand": "npm run build:h5",
+      "outputDirectory": "dist/build/h5"
+    },
+    "api": {
+      "root": "services/api",
+      "runtime": "container"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/healthz",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/v1/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "uniapp"
+      }
+    }
+  ]
+}
+

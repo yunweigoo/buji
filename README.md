@@ -52,3 +52,12 @@ go run ./cmd/api
 - Go API、PostgreSQL schema 和 CloudBase 容器部署骨架已经建立。
 - 登录、图片上传、正式数据库连接和飞书同步将在后续迭代接入。
 
+## Vercel Services
+
+根目录 `vercel.json` 将 H5 和 Go API 部署在同一个 Vercel 项目：
+
+- `/healthz`、`/v1/*` → Go API 容器
+- 其他请求 → uni-app H5
+
+在 Vercel 项目设置中把 Framework Preset 设为 `Services`。生产环境同域请求无需设置 `VITE_API_BASE_URL`；本地开发仍默认访问 `http://localhost:8080`。
+
