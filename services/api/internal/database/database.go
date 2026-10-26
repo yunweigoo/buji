@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -24,6 +25,10 @@ func Open(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 	config.MaxConnLifetime = 30 * time.Minute
 	config.MaxConnIdleTime = 5 * time.Minute
 	config.HealthCheckPeriod = 30 * time.Second
+	// Supabase's pooled connection uses PgBouncer transaction mode. Prepared
+	// statements are session-scoped and can collide when pooled connections are
+	// reused, so use the wire-compatible simple protocol for all queries.
+	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
