@@ -5,10 +5,30 @@ import { useWorkspaceStore } from '@/stores/workspace'
 const workspace = useWorkspaceStore()
 const today = computed(() => new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' }).format(new Date()))
 
-onMounted(() => workspace.hydrateEmptyWorkspace())
+onMounted(async () => {
+  try {
+    await workspace.loadWorkspace()
+  } catch {
+    uni.showToast({ title: '数据库连接失败，请稍后重试', icon: 'none' })
+  }
+})
 
 function addFabric() {
-  uni.showToast({ title: '录入流程将在数据接入阶段启用', icon: 'none' })
+  uni.showModal({
+    title: '记录一款布料',
+    editable: true,
+    placeholderText: '给这款布起个名字',
+    success: async ({ confirm, content }) => {
+      const name = content?.trim()
+      if (!confirm || !name) return
+      try {
+        await workspace.createFabric(name)
+        uni.showToast({ title: '已存入布料库', icon: 'success' })
+      } catch {
+        uni.showToast({ title: '保存失败，请稍后重试', icon: 'none' })
+      }
+    },
+  })
 }
 
 function go(path: string) {
