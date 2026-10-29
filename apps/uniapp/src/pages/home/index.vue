@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import FabricEntryModal from '@/components/FabricEntryModal.vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 
 const workspace = useWorkspaceStore()
+const showEntry = ref(false)
 const today = computed(() => new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' }).format(new Date()))
 
 onMounted(async () => {
@@ -14,21 +16,7 @@ onMounted(async () => {
 })
 
 function addFabric() {
-  uni.showModal({
-    title: '记录一款布料',
-    editable: true,
-    placeholderText: '给这款布起个名字',
-    success: async ({ confirm, content }) => {
-      const name = content?.trim()
-      if (!confirm || !name) return
-      try {
-        await workspace.createFabric(name)
-        uni.showToast({ title: '已存入布料库', icon: 'success' })
-      } catch {
-        uni.showToast({ title: '保存失败，请稍后重试', icon: 'none' })
-      }
-    },
-  })
+  showEntry.value = true
 }
 
 function go(path: string) {
@@ -59,7 +47,7 @@ function go(path: string) {
 
     <view class="metrics">
       <view class="metric"><text class="metric-icon">▦</text><view><text class="metric-label">我的花色</text><text class="metric-value">{{ workspace.fabricCount }}<small> 款</small></text></view></view>
-      <view class="metric"><text class="metric-icon peach">✂</text><view><text class="metric-label">实物布块</text><text class="metric-value">0<small> 块</small></text></view></view>
+      <view class="metric"><text class="metric-icon peach">✂</text><view><text class="metric-label">实物布块</text><text class="metric-value">{{ workspace.pieceCount }}<small> 块</small></text></view></view>
       <view class="metric"><text class="metric-icon pink">♡</text><view><text class="metric-label">完成作品</text><text class="metric-value">{{ workspace.completedProjectCount }}<small> 件</small></text></view></view>
     </view>
 
@@ -71,6 +59,7 @@ function go(path: string) {
       <button class="tool" @click="go('/pages/check/index')"><text class="tool-icon pink">⌕</text><view><text class="tool-title">买之前先看看</text><text class="tool-copy">和自己的布料收藏比一比</text></view><text class="arrow">›</text></button>
       <button class="tool" @click="go('/pages/match/index')"><text class="tool-icon">✧</text><view><text class="tool-title">主布怎么搭？</text><text class="tool-copy">拿手边库存试出新组合</text></view><text class="arrow">›</text></button>
     </view>
+    <FabricEntryModal :open="showEntry" @close="showEntry = false" />
   </view>
 </template>
 

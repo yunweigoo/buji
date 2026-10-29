@@ -21,11 +21,15 @@ type fakeStore struct {
 
 func (s *fakeStore) ListFabrics(context.Context) ([]database.Fabric, error)   { return s.fabrics, nil }
 func (s *fakeStore) ListProjects(context.Context) ([]database.Project, error) { return s.projects, nil }
-func (s *fakeStore) CreateFabric(_ context.Context, name, material, pattern, memo string) (database.Fabric, error) {
-	item := database.Fabric{ID: "fabric-1", Name: name, Material: material, Pattern: pattern, Memo: memo}
+func (s *fakeStore) CreateFabric(_ context.Context, input database.CreateFabricInput) (database.Fabric, error) {
+	item := database.Fabric{ID: "fabric-1", Name: input.Name, Material: input.Material, Pattern: input.Pattern, Memo: input.Memo}
 	s.fabrics = append([]database.Fabric{item}, s.fabrics...)
 	return item, nil
 }
+func (s *fakeStore) SaveAsset(context.Context, string, string, int, int, int64, string) (database.Asset, error) {
+	return database.Asset{}, nil
+}
+func (s *fakeStore) OwnerID() string { return "owner-1" }
 func (s *fakeStore) CreateProject(_ context.Context, name, kind, memo string) (database.Project, error) {
 	item := database.Project{ID: "project-1", Name: name, Kind: kind, Memo: memo, Status: "planned"}
 	s.projects = append([]database.Project{item}, s.projects...)
@@ -33,7 +37,7 @@ func (s *fakeStore) CreateProject(_ context.Context, name, kind, memo string) (d
 }
 
 func TestHealth(t *testing.T) {
-	handler := NewHandler(slog.New(slog.NewTextHandler(io.Discard, nil)), config.Config{Environment: "test"}, nil, nil)
+	handler := NewHandler(slog.New(slog.NewTextHandler(io.Discard, nil)), config.Config{Environment: "test"}, nil, nil, nil)
 	request := httptest.NewRequest(http.MethodGet, "/healthz", nil)
 	responseRecorder := httptest.NewRecorder()
 	handler.ServeHTTP(responseRecorder, request)
@@ -52,7 +56,7 @@ func TestHealth(t *testing.T) {
 
 func TestCreateFabric(t *testing.T) {
 	store := &fakeStore{}
-	handler := NewHandler(slog.New(slog.NewTextHandler(io.Discard, nil)), config.Config{Environment: "test"}, nil, store)
+	handler := NewHandler(slog.New(slog.NewTextHandler(io.Discard, nil)), config.Config{Environment: "test"}, nil, store, nil)
 	request := httptest.NewRequest(http.MethodPost, "/v1/fabrics", strings.NewReader(`{"name":"蓝色碎花棉布"}`))
 	request.Header.Set("Content-Type", "application/json")
 	responseRecorder := httptest.NewRecorder()
@@ -68,7 +72,7 @@ func TestCreateFabric(t *testing.T) {
 
 func TestBootstrapReturnsStoredData(t *testing.T) {
 	store := &fakeStore{fabrics: []database.Fabric{{ID: "fabric-1", Name: "格纹布"}}}
-	handler := NewHandler(slog.New(slog.NewTextHandler(io.Discard, nil)), config.Config{Environment: "test"}, nil, store)
+	handler := NewHandler(slog.New(slog.NewTextHandler(io.Discard, nil)), config.Config{Environment: "test"}, nil, store, nil)
 	request := httptest.NewRequest(http.MethodGet, "/v1/bootstrap", nil)
 	responseRecorder := httptest.NewRecorder()
 	handler.ServeHTTP(responseRecorder, request)

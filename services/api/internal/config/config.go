@@ -10,6 +10,8 @@ type Config struct {
 	Port            string
 	Environment     string
 	DatabaseURL     string
+	SupabaseURL     string
+	SupabaseKey     string
 	FeishuAppID     string
 	FeishuAppSecret string
 	FeishuBaseToken string
@@ -26,6 +28,8 @@ func Load() Config {
 		Port:            envOr("PORT", "8080"),
 		Environment:     envOr("APP_ENV", "development"),
 		DatabaseURL:     firstEnv("DATABASE_URL", "POSTGRES_URL", "POSTGRES_URL_NON_POOLING"),
+		SupabaseURL:     os.Getenv("SUPABASE_URL"),
+		SupabaseKey:     firstEnv("SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"),
 		FeishuAppID:     os.Getenv("FEISHU_APP_ID"),
 		FeishuAppSecret: os.Getenv("FEISHU_APP_SECRET"),
 		FeishuBaseToken: os.Getenv("FEISHU_BASE_APP_TOKEN"),

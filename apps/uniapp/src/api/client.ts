@@ -30,3 +30,27 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   })
 }
 
+export async function uploadAsset(filePath: string): Promise<import('@/types/domain').Asset> {
+  return new Promise((resolve, reject) => {
+    uni.uploadFile({
+      url: `${API_BASE_URL}/v1/assets`,
+      filePath,
+      name: 'file',
+      success(response) {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          reject(new Error(`图片上传失败：${response.statusCode}`))
+          return
+        }
+        try {
+          resolve((JSON.parse(response.data) as ApiEnvelope<import('@/types/domain').Asset>).data)
+        } catch {
+          reject(new Error('图片上传响应无法解析'))
+        }
+      },
+      fail(error) {
+        reject(new Error(error.errMsg || '图片上传失败'))
+      },
+    })
+  })
+}
+

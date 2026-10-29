@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { apiRequest } from '@/api/client'
-import type { Fabric, Project } from '@/types/domain'
+import { apiRequest, uploadAsset } from '@/api/client'
+import type { CreateFabricPayload, Fabric, Project } from '@/types/domain'
 
 interface WorkspaceState {
   fabrics: Fabric[]
@@ -27,6 +27,7 @@ export const useWorkspaceStore = defineStore('workspace', {
   getters: {
     fabricCount: (state) => state.fabrics.length,
     completedProjectCount: (state) => state.projects.filter((item) => item.status === 'completed').length,
+    pieceCount: (state) => state.fabrics.reduce((count, item) => count + (item.pieces?.length ?? 0), 0),
   },
   actions: {
     async loadWorkspace(force = false) {
@@ -45,8 +46,12 @@ export const useWorkspaceStore = defineStore('workspace', {
         this.loading = false
       }
     },
-    async createFabric(name: string) {
-      const item = await apiRequest<Fabric>('/v1/fabrics', { method: 'POST', data: { name } })
+    async createFabric(payload: CreateFabricPayload, imagePath?: string) {
+      if (imagePath) {
+        const asset = await uploadAsset(imagePath)
+        payload.coverAssetId = asset.id
+      }
+      const item = await apiRequest<Fabric>('/v1/fabrics', { method: 'POST', data: payload })
       this.fabrics.unshift(item)
       return item
     },

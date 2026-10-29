@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/yunweigoo/buji/services/api/internal/config"
 	"github.com/yunweigoo/buji/services/api/internal/database"
 	"github.com/yunweigoo/buji/services/api/internal/httpapi"
+	"github.com/yunweigoo/buji/services/api/internal/storage"
 )
 
 func main() {
@@ -35,7 +37,17 @@ func main() {
 		logger.Error("database migration failed", "error", err)
 		os.Exit(1)
 	}
-	store, err := database.NewStore(startupCtx, pool)
+	objects := storage.NewSupabase(cfg.SupabaseURL, cfg.SupabaseKey)
+	if !objects.Ready() {
+		logger.Error("Supabase Storage configuration is required", "accepted_variables", "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY")
+		os.Exit(1)
+	}
+	if err := objects.EnsureBucket(startupCtx); err != nil {
+		logger.Error("Supabase Storage initialization failed", "error", err)
+		os.Exit(1)
+	}
+	storagePublicBase := strings.TrimRight(cfg.SupabaseURL, "/") + "/storage/v1/object/public/" + storage.Bucket
+	store, err := database.NewStore(startupCtx, pool, storagePublicBase)
 	if err != nil {
 		logger.Error("database store initialization failed", "error", err)
 		os.Exit(1)
@@ -44,7 +56,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:              ":" + cfg.Port,
-		Handler:           httpapi.NewHandler(logger, cfg, pool, store),
+		Handler:           httpapi.NewHandler(logger, cfg, pool, store, objects),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       20 * time.Second,
 		WriteTimeout:      30 * time.Second,
